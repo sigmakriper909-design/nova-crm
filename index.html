@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova CRM — Современная CRM-система</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-secondary: #3B82F6;
+      --color-accent: #EA580C;
+      --color-accent-hover: #C2410C;
+      --color-background: #F8FAFC;
+      --color-foreground: #1E293B;
+      --color-card: #FFFFFF;
+      --color-card-foreground: #1E293B;
+      --color-muted: #E9EFF8;
+      --color-muted-foreground: #475569;
+      --color-border: #E2E8F0;
+      --color-destructive: #DC2626;
+      --color-success: #16A34A;
+      --color-warning: #D97706;
+      --color-ring: #2563EB;
+      --sidebar-width: 260px;
+      --header-height: 64px;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.45);
+      --blur: 16px;
+      --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--color-background);
+      color: var(--color-foreground);
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Background decoration */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-decor::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+      top: -200px;
+      right: -100px;
+      animation: float 18s ease-in-out infinite;
+    }
+    .bg-decor::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(234, 88, 12, 0.08) 0%, transparent 70%);
+      bottom: -150px;
+      left: -80px;
+      animation: float 22s ease-in-out infinite reverse;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(30px, -40px); }
+    }
+
+    /* Layout */
+    .app {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      transition: transform var(--transition), width var(--transition);
+    }
+
+    .sidebar-header {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--color-primary), #60A5FA);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .logo-text span {
+      color: var(--color-primary);
+    }
+
+    .nav {
+      flex: 1;
+      padding: 1rem 0.75rem;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-muted-foreground);
+      padding: 0 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: var(--radius-sm);
+      color: var(--color-muted-foreground);
+      font-weight: 500;
+      font-size: 0.925rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: var(--color-muted);
+      color: var(--color-foreground);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.06));
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 60%;
+      background: var(--color-primary);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--color-accent);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .user-card:hover {
+      background: var(--color-muted);
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #818CF8, #C084FC);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .user-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-role {
+      font-size: 0.75rem;
+      color: var(--color-muted-foreground);
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      height: var(--header-height);
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.75rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .page-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--color-muted);
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 0.45rem 1rem;
+      width: 260px;
+      transition: all var(--transition);
+    }
+    .search-box:focus-within {
+      background: var(--color-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.875rem;
+      width: 100%;
+      color: var(--color-foreground);
+    }
+    .search-box input::placeholder {
+      color: var(--color-muted-foreground);
+    }
+    .search-box svg {
+      width: 18px;
+      height: 18px;
+      color: var(--color-muted-foreground);
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+    .btn-accent {
+      background: var(--color-accent);
+      color: white;
+      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+    }
+    .btn-accent:hover {
+      background: var(--color-accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-muted-foreground);
+    }
+    .btn-ghost:hover {
+      background: var(--color-muted);
+      color: var(--color-foreground);
+    }
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 12px;
+      background: var(--color-muted);
+      color: var(--color-muted-foreground);
+    }
+    .btn-icon:hover {
+      background: var(--color-border);
+      color: var(--color-foreground);
+    }
+    .btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .content {
+      flex: 1;
+      padding: 1.75rem;
+      overflow-y: auto;
+    }
+
+    /* Views */
+    .view {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+    .view.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .stat-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition);
+      cursor: default;
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(37, 99, 235, 0.25);
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.08), transparent 70%);
+      transform: translate(30%, -30%);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-muted-foreground);
+      margin-bottom: 0.35rem;
+    }
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.4rem;
+    }
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+    .stat-change.up {
+      background: rgba(22, 163, 74, 0.12);
+      color: var(--color-success);
+    }
+    .stat-change.down {
+      background: rgba(220, 38, 38, 0.12);
+      color: var(--color-destructive);
+    }
+
+    .stat-icon {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon.blue { background: rgba(37, 99, 235, 0.12); color: var(--color-primary); }
+    .stat-icon.orange { background: rgba(234, 88, 12, 0.12); color: var(--color-accent); }
+    .stat-icon.green { background: rgba(22, 163, 74, 0.12); color: var(--color-success); }
+    .stat-icon.purple { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+    .stat-icon svg { width: 20px; height: 20px; }
+
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      transition: all var(--transition);
+    }
+    .card:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.1rem;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+    }
+
+    /* Chart placeholder */
+    .chart-area {
+      height: 220px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding-top: 1rem;
+    }
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(180deg, var(--color-primary), #60A5FA);
+      border-radius: 6px 6px 2px 2px;
+      min-height: 8px;
+      transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      opacity: 0.85;
+    }
+    .chart-bar:hover {
+      opacity: 1;
+      filter: brightness(1.1);
+    }
+    .chart-bar::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      color: var(--color-muted-foreground);
+      white-space: nowrap;
+    }
+
+    /* Activity list */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .activity-item {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+    }
+    .activity-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .activity-dot.blue { background: var(--color-primary); }
+    .activity-dot.green { background: var(--color-success); }
+    .activity-dot.orange { background: var(--color-accent); }
+    .activity-text {
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+    .activity-text strong {
+      font-weight: 600;
+    }
+    .activity-time {
+      font-size: 0.75rem;
+      color: var(--color-muted-foreground);
+      margin-top: 0.15rem;
+    }
+
+    /* Contacts table */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-card);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    th {
+      text-align: left;
+      padding: 0.9rem 1.1rem;
+      font-weight: 600;
+      color: var(--color-muted-foreground);
+      background: var(--color-muted);
+      border-bottom: 1px solid var(--color-border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 0.95rem 1.1rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr {
+      transition: background var(--transition);
+    }
+    tr:hover td {
+      background: rgba(37, 99, 235, 0.03);
+    }
+
+    .contact-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .contact-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-badge.active {
+      background: rgba(22, 163, 74, 0.12);
+      color: var(--color-success);
+    }
+    .status-badge.lead {
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--color-primary);
+    }
+    .status-badge.inactive {
+      background: rgba(100, 116, 139, 0.12);
+      color: #64748B;
+    }
+
+    /* Kanban */
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.1rem;
+      min-height: 480px;
+    }
+    .kanban-col {
+      background: var(--color-muted);
+      border-radius: var(--radius);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .kanban-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.9rem;
+      padding: 0 0.25rem;
+    }
+    .kanban-title {
+      font-weight: 650;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .kanban-count {
+      background: var(--color-card);
+      color: var(--color-muted-foreground);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+    }
+    .kanban-cards {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+    }
+    .deal-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      cursor: grab;
+      transition: all var(--transition);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .deal-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+      border-color: rgba(37, 99, 235, 0.3);
+    }
+    .deal-card:active {
+      cursor: grabbing;
+    }
+    .deal-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+    }
+    .deal-company {
+      font-size: 0.8rem;
+      color: var(--color-muted-foreground);
+      margin-bottom: 0.6rem;
+    }
+    .deal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .deal-amount {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--color-primary);
+    }
+    .deal-priority {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .deal-priority.high { background: var(--color-destructive); }
+    .deal-priority.medium { background: var(--color-warning); }
+    .deal-priority.low { background: var(--color-success); }
+
+    /* Tasks */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 1rem 1.15rem;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+    }
+    .task-item:hover {
+      border-color: rgba(37, 99, 235, 0.3);
+      box-shadow: var(--shadow);
+    }
+    .task-check {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .task-check:hover {
+      border-color: var(--color-primary);
+    }
+    .task-check.done {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+    .task-check.done svg {
+      display: block;
+    }
+    .task-check svg {
+      display: none;
+      width: 14px;
+      height: 14px;
+    }
+    .task-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .task-title {
+      font-weight: 550;
+      font-size: 0.925rem;
+    }
+    .task-title.done {
+      text-decoration: line-through;
+      color: var(--color-muted-foreground);
+    }
+    .task-meta {
+      font-size: 0.75rem;
+      color: var(--color-muted-foreground);
+      margin-top: 0.15rem;
+    }
+    .task-due {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      background: var(--color-muted);
+      color: var(--color-muted-foreground);
+    }
+    .task-due.overdue {
+      background: rgba(220, 38, 38, 0.12);
+      color: var(--color-destructive);
+    }
+    .task-due.today {
+      background: rgba(234, 88, 12, 0.12);
+      color: var(--color-accent);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal {
+      background: var(--color-card);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      padding: 1.75rem;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-overlay.open .modal {
+      transform: scale(1) translateY(0);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.35rem;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .form-group {
+      margin-bottom: 1.1rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--color-muted-foreground);
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: var(--color-background);
+      color: var(--color-foreground);
+      transition: all var(--transition);
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.65rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--color-muted-foreground);
+    }
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Mobile */
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--color-muted);
+      border-radius: 12px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-foreground);
+    }
+
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .kanban {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main {
+        margin-left: 0;
+      }
+      .mobile-menu-btn {
+        display: flex;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .search-box {
+        width: 180px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .kanban {
+        grid-template-columns: 1fr;
+      }
+      .content {
+        padding: 1.1rem;
+      }
+      .header {
+        padding: 0 1rem;
+      }
+      .search-box {
+        display: none;
+      }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-muted-foreground);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-decor"></div>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">N</div>
+        <div class="logo-text">Nova <span>CRM</span></div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-section">
+          <div class="nav-label">Основное</div>
+          <button class="nav-item active" data-view="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            Панель
+          </button>
+          <button class="nav-item" data-view="contacts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Контакты
+            <span class="nav-badge">24</span>
+          </button>
+          <button class="nav-item" data-view="deals">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Сделки
+            <span class="nav-badge">12</span>
+          </button>
+          <button class="nav-item" data-view="tasks">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Задачи
+            <span class="nav-badge">7</span>
+          </button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Система</div>
+          <button class="nav-item" data-view="settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Настройки
+          </button>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="avatar">АК</div>
+          <div class="user-info">
+            <div class="user-name">Анна Ковалёва</div>
+            <div class="user-role">Менеджер продаж</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="header">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <button class="mobile-menu-btn" id="menuBtn" aria-label="Меню">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <h1 class="page-title" id="pageTitle">Панель управления</h1>
+        </div>
+        <div class="header-actions">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Поиск..." id="globalSearch" />
+          </div>
+          <button class="btn btn-icon" title="Уведомления">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+          <button class="btn btn-primary" id="addBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Добавить
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- DASHBOARD -->
+        <section class="view active" id="view-dashboard">
+          <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+              <div class="stat-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="stat-label">Всего контактов</div>
+              <div class="stat-value">248</div>
+              <span class="stat-change up">↑ 12% за месяц</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div class="stat-label">Активные сделки</div>
+              <div class="stat-value">36</div>
+              <span class="stat-change up">↑ 8% за неделю</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              </div>
+              <div class="stat-label">Выручка (мес.)</div>
+              <div class="stat-value">₽ 2.4M</div>
+              <span class="stat-change up">↑ 18% vs прошлый</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+              <div class="stat-label">Выполнено задач</div>
+              <div class="stat-value">89%</div>
+              <span class="stat-change down">↓ 3% за неделю</span>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Динамика продаж</h3>
+                <button class="btn btn-ghost" style="font-size:0.8rem;">За 6 мес.</button>
+              </div>
+              <div class="chart-area" id="chartArea">
+                <div class="chart-bar" data-label="Апр" style="height:0%" data-h="45"></div>
+                <div class="chart-bar" data-label="Май" style="height:0%" data-h="62"></div>
+                <div class="chart-bar" data-label="Июн" style="height:0%" data-h="48"></div>
+                <div class="chart-bar" data-label="Июл" style="height:0%" data-h="78"></div>
+                <div class="chart-bar" data-label="Авг" style="height:0%" data-h="65"></div>
+                <div class="chart-bar" data-label="Сен" style="height:0%" data-h="92"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Последняя активность</h3>
+              </div>
+              <div class="activity-list">
+                <div class="activity-item">
+                  <div class="activity-dot blue"></div>
+                  <div>
+                    <div class="activity-text"><strong>Игорь Смирнов</strong> добавил новый контакт</div>
+                    <div class="activity-time">5 минут назад</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-dot green"></div>
+                  <div>
+                    <div class="activity-text">Сделка <strong>«Облачный сервис»</strong> закрыта</div>
+                    <div class="activity-time">42 минуты назад</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-dot orange"></div>
+                  <div>
+                    <div class="activity-text"><strong>Мария Петрова</strong> обновила статус сделки</div>
+                    <div class="activity-time">1 час назад</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-dot blue"></div>
+                  <div>
+                    <div class="activity-text">Новая задача: <strong>Подготовить КП</strong></div>
+                    <div class="activity-time">2 часа назад</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-dot green"></div>
+                  <div>
+                    <div class="activity-text"><strong>ООО «ТехноСтар»</strong> стал клиентом</div>
+                    <div class="activity-time">Вчера</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONTACTS -->
+        <section class="view" id="view-contacts">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Контакт</th>
+                  <th>Компания</th>
+                  <th>Email</th>
+                  <th>Статус</th>
+                  <th>Сумма сделок</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="contactsBody">
+                <!-- filled by JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DEALS -->
+        <section class="view" id="view-deals">
+          <div class="kanban" id="kanban">
+            <div class="kanban-col" data-stage="lead">
+              <div class="kanban-header">
+                <div class="kanban-title">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#3B82F6;display:inline-block;"></span>
+                  Лид
+                </div>
+                <span class="kanban-count" id="count-lead">0</span>
+              </div>
+              <div class="kanban-cards" id="col-lead"></div>
+            </div>
+            <div class="kanban-col" data-stage="negotiation">
+              <div class="kanban-header">
+                <div class="kanban-title">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#D97706;display:inline-block;"></span>
+                  Переговоры
+                </div>
+                <span class="kanban-count" id="count-negotiation">0</span>
+              </div>
+              <div class="kanban-cards" id="col-negotiation"></div>
+            </div>
+            <div class="kanban-col" data-stage="proposal">
+              <div class="kanban-header">
+                <div class="kanban-title">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#7C3AED;display:inline-block;"></span>
+                  Предложение
+                </div>
+                <span class="kanban-count" id="count-proposal">0</span>
+              </div>
+              <div class="kanban-cards" id="col-proposal"></div>
+            </div>
+            <div class="kanban-col" data-stage="won">
+              <div class="kanban-header">
+                <div class="kanban-title">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#16A34A;display:inline-block;"></span>
+                  Закрыто
+                </div>
+                <span class="kanban-count" id="count-won">0</span>
+              </div>
+              <div class="kanban-cards" id="col-won"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TASKS -->
+        <section class="view" id="view-tasks">
+          <div class="task-list" id="taskList">
+            <!-- filled by JS -->
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="view" id="view-settings">
+          <div class="card" style="max-width:560px;">
+            <div class="card-header">
+              <h3 class="card-title">Настройки профиля</h3>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Имя</label>
+              <input class="form-input" value="Анна Ковалёва" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" value="anna@novacrm.ru" type="email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Роль</label>
+              <input class="form-input" value="Менеджер продаж" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Тема</label>
+              <select class="form-input">
+                <option>Светлая</option>
+                <option>Тёмная</option>
+                <option>Системная</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="margin-top:0.5rem;">Сохранить изменения</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Добавить контакт</h2>
+        <button class="btn btn-icon" id="closeModal" aria-label="Закрыть">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form id="modalForm">
+        <div class="form-group">
+          <label class="form-label">Имя</label>
+          <input class="form-input" name="name" required placeholder="Иван Иванов" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Компания</label>
+            <input class="form-input" name="company" placeholder="ООО «Пример»" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" name="email" type="email" placeholder="ivan@example.com" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Статус</label>
+          <select class="form-input" name="status">
+            <option value="lead">Лид</option>
+            <option value="active">Активный</option>
+            <option value="inactive">Неактивный</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelModal">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ===== Data =====
+    const contacts = [
+      { id: 1, name: 'Игорь Смирнов', company: 'ТехноСтар', email: 'igor@technostar.ru', status: 'active', amount: '₽ 450 000', color: '#2563EB' },
+      { id: 2, name: 'Мария Петрова', company: 'CloudSoft', email: 'maria@cloudsoft.io', status: 'lead', amount: '₽ 120 000', color: '#7C3AED' },
+      { id: 3, name: 'Алексей Новиков', company: 'Digital Hub', email: 'alex@digitalhub.ru', status: 'active', amount: '₽ 890 000', color: '#EA580C' },
+      { id: 4, name: 'Елена Васильева', company: 'FinTech Pro', email: 'elena@fintech.pro', status: 'inactive', amount: '₽ 0', color: '#16A34A' },
+      { id: 5, name: 'Дмитрий Козлов', company: 'ООО «Альфа»', email: 'd.kozlov@alpha.ru', status: 'active', amount: '₽ 320 000', color: '#DC2626' },
+      { id: 6, name: 'Ольга Соколова', company: 'Media Group', email: 'olga@mediagroup.com', status: 'lead', amount: '₽ 75 000', color: '#0891B2' },
+      { id: 7, name: 'Сергей Морозов', company: 'BuildCorp', email: 's.morozov@buildcorp.ru', status: 'active', amount: '₽ 1 200 000', color: '#4F46E5' },
+      { id: 8, name: 'Наталья Лебедева', company: 'Health Plus', email: 'n.lebedeva@healthplus.ru', status: 'lead', amount: '₽ 210 000', color: '#DB2777' },
+    ];
+
+    const deals = [
+      { id: 1, title: 'Облачный сервис', company: 'ТехноСтар', amount: '₽ 450 000', stage: 'won', priority: 'high' },
+      { id: 2, title: 'CRM интеграция', company: 'CloudSoft', amount: '₽ 180 000', stage: 'negotiation', priority: 'medium' },
+      { id: 3, title: 'Мобильное приложение', company: 'Digital Hub', amount: '₽ 890 000', stage: 'proposal', priority: 'high' },
+      { id: 4, title: 'Аналитика BI', company: 'FinTech Pro', amount: '₽ 320 000', stage: 'lead', priority: 'low' },
+      { id: 5, title: 'Поддержка 24/7', company: 'ООО «Альфа»', amount: '₽ 95 000', stage: 'negotiation', priority: 'medium' },
+      { id: 6, title: 'Редизайн сайта', company: 'Media Group', amount: '₽ 150 000', stage: 'proposal', priority: 'low' },
+      { id: 7, title: 'ERP внедрение', company: 'BuildCorp', amount: '₽ 1 200 000', stage: 'lead', priority: 'high' },
+      { id: 8, title: 'Телемедицина', company: 'Health Plus', amount: '₽ 210 000', stage: 'won', priority: 'medium' },
+      { id: 9, title: 'SaaS подписка', company: 'CloudSoft', amount: '₽ 75 000', stage: 'lead', priority: 'low' },
+      { id: 10, title: 'API разработка', company: 'Digital Hub', amount: '₽ 410 000', stage: 'negotiation', priority: 'high' },
+      { id: 11, title: 'Обучение команды', company: 'ТехноСтар', amount: '₽ 60 000', stage: 'proposal', priority: 'medium' },
+      { id: 12, title: 'Кибербезопасность', company: 'FinTech Pro', amount: '₽ 540 000', stage: 'lead', priority: 'high' },
+    ];
+
+    const tasks = [
+      { id: 1, title: 'Подготовить коммерческое предложение для ТехноСтар', meta: 'Сделка · Облачный сервис', due: 'Сегодня', dueClass: 'today', done: false },
+      { id: 2, title: 'Созвон с Марией Петровой', meta: 'Контакт · CloudSoft', due: 'Завтра', dueClass: '', done: false },
+      { id: 3, title: 'Отправить договор на подпись', meta: 'Сделка · ERP внедрение', due: 'Пн, 8 сен', dueClass: '', done: false },
+      { id: 4, title: 'Обновить карточку Digital Hub', meta: 'Контакт', due: 'Вчера', dueClass: 'overdue', done: false },
+      { id: 5, title: 'Провести демо продукта', meta: 'Сделка · Мобильное приложение', due: 'Ср, 10 сен', dueClass: '', done: true },
+      { id: 6, title: 'Собрать обратную связь от клиента', meta: 'Сделка · Облачный сервис', due: 'Пт, 12 сен', dueClass: '', done: false },
+      { id: 7, title: 'Назначить встречу с командой', meta: 'Внутреннее', due: 'Сегодня', dueClass: 'today', done: true },
+    ];
+
+    const titles = {
+      dashboard: 'Панель управления',
+      contacts: 'Контакты',
+      deals: 'Сделки',
+      tasks: 'Задачи',
+      settings: 'Настройки'
+    };
+
+    // ===== Render =====
+    function renderContacts() {
+      const tbody = document.getElementById('contactsBody');
+      tbody.innerHTML = contacts.map(c => {
+        const statusMap = { active: 'Активный', lead: 'Лид', inactive: 'Неактивный' };
+        const statusClass = c.status;
+        return `
+          <tr>
+            <td>
+              <div class="contact-cell">
+                <div class="contact-avatar" style="background:${c.color}">${c.name.split(' ').map(n=>n[0]).join('')}</div>
+                <div>
+                  <div style="font-weight:600">${c.name}</div>
+                </div>
+              </div>
+            </td>
+            <td>${c.company}</td>
+            <td style="color:var(--color-muted-foreground)">${c.email}</td>
+            <td><span class="status-badge ${statusClass}">${statusMap[c.status]}</span></td>
+            <td style="font-weight:600">${c.amount}</td>
+            <td>
+              <button class="btn btn-ghost" style="padding:0.35rem;" title="Ещё">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderDeals() {
+      const stages = ['lead', 'negotiation', 'proposal', 'won'];
+      stages.forEach(stage => {
+        const col = document.getElementById('col-' + stage);
+        const items = deals.filter(d => d.stage === stage);
+        document.getElementById('count-' + stage).textContent = items.length;
+        col.innerHTML = items.map(d => `
+          <div class="deal-card" draggable="true" data-id="${d.id}">
+            <div class="deal-title">${d.title}</div>
+            <div class="deal-company">${d.company}</div>
+            <div class="deal-footer">
+              <span class="deal-amount">${d.amount}</span>
+              <span class="deal-priority ${d.priority}" title="${d.priority}"></span>
+            </div>
+          </div>
+        `).join('');
+      });
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = tasks.map(t => `
+        <div class="task-item" data-id="${t.id}">
+          <div class="task-check ${t.done ? 'done' : ''}" data-id="${t.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="task-body">
+            <div class="task-title ${t.done ? 'done' : ''}">${t.title}</div>
+            <div class="task-meta">${t.meta}</div>
+          </div>
+          <span class="task-due ${t.dueClass}">${t.due}</span>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.task-check').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = +el.dataset.id;
+          const task = tasks.find(t => t.id === id);
+          if (task) {
+            task.done = !task.done;
+            renderTasks();
+            animateTasks();
+          }
+        });
+      });
+    }
+
+    // ===== Navigation =====
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const view = btn.dataset.view;
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-' + view).classList.add('active');
+        document.getElementById('pageTitle').textContent = titles[view];
+
+        // Animate content
+        const activeView = document.getElementById('view-' + view);
+        gsap.fromTo(activeView, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+
+        if (view === 'dashboard') animateChart();
+        if (view === 'contacts') animateTable();
+        if (view === 'deals') animateKanban();
+        if (view === 'tasks') animateTasks();
+
+        // Close mobile sidebar
+        document.getElementById('sidebar').classList.remove('open');
+      });
+    });
+
+    // ===== Modal =====
+    const modal = document.getElementById('modal');
+    document.getElementById('addBtn').addEventListener('click', () => {
+      modal.classList.add('open');
+      document.getElementById('modalTitle').textContent = 'Добавить контакт';
+    });
+    document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+    document.getElementById('cancelModal').addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+    document.getElementById('modalForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const name = fd.get('name');
+      const company = fd.get('company') || '—';
+      const email = fd.get('email') || '—';
+      const status = fd.get('status');
+      const colors = ['#2563EB','#7C3AED','#EA580C','#16A34A','#DC2626','#0891B2','#4F46E5','#DB2777'];
+      contacts.unshift({
+        id: Date.now(),
+        name,
+        company,
+        email,
+        status,
+        amount: '₽ 0',
+        color: colors[Math.floor(Math.random()*colors.length)]
+      });
+      renderContacts();
+      modal.classList.remove('open');
+      e.target.reset();
+      // Switch to contacts
+      document.querySelector('[data-view="contacts"]').click();
+    });
+
+    // ===== Mobile menu =====
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // ===== Animations =====
+    function animateStats() {
+      gsap.from('.stat-card', {
+        opacity: 0,
+        y: 20,
+        scale: 0.96,
+        duration: 0.45,
+        stagger: 0.08,
+        ease: 'back.out(1.4)'
+      });
+    }
+
+    function animateChart() {
+      document.querySelectorAll('.chart-bar').forEach(bar => {
+        const h = bar.dataset.h + '%';
+        gsap.to(bar, { height: h, duration: 0.7, ease: 'expo.out', delay: 0.15 });
+      });
+    }
+
+    function animateTable() {
+      gsap.from('#contactsBody tr', {
+        opacity: 0,
+        x: -12,
+        duration: 0.3,
+        stagger: 0.04,
+        ease: 'power2.out'
+      });
+    }
+
+    function animateKanban() {
+      gsap.from('.deal-card', {
+        opacity: 0,
+        y: 16,
+        scale: 0.95,
+        duration: 0.4,
+        stagger: { each: 0.05, from: 'start' },
+        ease: 'back.out(1.2)'
+      });
+    }
+
+    function animateTasks() {
+      gsap.from('.task-item', {
+        opacity: 0,
+        y: 10,
+        duration: 0.3,
+        stagger: 0.05,
+        ease: 'power2.out'
+      });
+    }
+
+    // Init
+    renderContacts();
+    renderDeals();
+    renderTasks();
+    animateStats();
+    animateChart();
+
+    // Drag & drop for kanban (simple)
+    let draggedId = null;
+    document.getElementById('kanban').addEventListener('dragstart', e => {
+      const card = e.target.closest('.deal-card');
+      if (card) {
+        draggedId = +card.dataset.id;
+        card.style.opacity = '0.5';
+      }
+    });
+    document.getElementById('kanban').addEventListener('dragend', e => {
+      const card = e.target.closest('.deal-card');
+      if (card) card.style.opacity = '1';
+    });
+    document.querySelectorAll('.kanban-cards').forEach(col => {
+      col.addEventListener('dragover', e => e.preventDefault());
+      col.addEventListener('drop', e => {
+        e.preventDefault();
+        const stage = col.id.replace('col-', '');
+        const deal = deals.find(d => d.id === draggedId);
+        if (deal) {
+          deal.stage = stage;
+          renderDeals();
+          animateKanban();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

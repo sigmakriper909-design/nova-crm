@@ -5,7 +5,7 @@
 ## 🔗 Ссылки
 
 - **GitHub:** https://github.com/sigmakriper909-design/nova-crm
-- **Live Demo (Vercel):** https://nova-crm-sigmakriper909-designs-projects.vercel.app
+- **Live Demo:** https://nova-crm-sigmakriper909-designs-projects.vercel.app
 
 ## Возможности
 
@@ -23,13 +23,6 @@
 - Полностью адаптивный дизайн
 - Glassmorphism + soft shadows
 
-## Как запустить локально
+## Запуск
 
-1. Скачайте `index.html` из репозитория (или из артефактов диалога)
-2. Откройте файл в любом современном браузере
-
-> Полный исходный код с полным дизайном и анимациями доступен в файле `index.html` (см. коммиты / артефакты).
-
-## Деплой
-
-Проект задеплоен на Vercel. Для обновления просто запушьте изменения в `main`.
+Просто откройте `index.html` в браузере.
